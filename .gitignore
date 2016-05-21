@@ -1,4 +1,7 @@
 *.pyc
 *.py~
+
 *.train
 *.model
+*.test
+*.expect

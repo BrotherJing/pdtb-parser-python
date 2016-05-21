@@ -116,14 +116,22 @@ class Implicit:
 
 		train_data.close()
 
-	def generateTestData(self):
+	def generateTestData(self,size=10):
+		cnt=0
 		data = open(constants.DEV_PATH)
 		test_data = open(constants.TEST_DATA_PATH,'w')
+		expect_data = open(constants.EXPECT_DATA_PATH,'w')
 
-		arr_data = [json.load(x) for x in data]
+		arr_data = [json.loads(x) for x in data]
 		for sent in arr_data:
+			sid = sent[u'ID']
 			if not sent[u'Type']==u'Implicit':
+				print sid, 'not implicit'
 				continue
+			print sid
+			if cnt>=size:
+				break
+			cnt+=1
 			senses = sent[u'Sense']
 			text1 = sent[u'Arg1'][u'RawText']
 			text2 = sent[u'Arg2'][u'RawText']
@@ -159,9 +167,16 @@ class Implicit:
 					line += k+' '
 
 			test_data.write(line+'\n')
+			print line
+			
+			expect = ''
+			for sense in senses:
+				expect+=sense+' '
+			expect_data.write(expect[:-1]+'\n')
 
 		test_data.close()
+		expect_data.close()
 
 if __name__ == '__main__':
 	implicit = Implicit(100,100,500)
-	implicit.generateTrainData()
+	implicit.generateTestData()

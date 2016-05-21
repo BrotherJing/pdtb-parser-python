@@ -11,6 +11,7 @@ DEV_PATH = 'dev_pdtb.json'
 TRAIN_DATA_PATH = 'pdtb.train'
 MODEL_PATH = 'pdtb.model'
 TEST_DATA_PATH = 'pdtb.test'
+EXPECT_DATA_PATH = 'pdtb.expect'
 
 TMP_DIR = "/tmp/"
 
