@@ -133,8 +133,16 @@ def getDependencyFeatures(parseArg1,parseArg2):
 	return (arrDepFeature1,arrDepFeature2)
 
 def getWordPairFeatures(parseArg1,parseArg2):
-	wordPairFeatures = []
+	'''wordPairFeatures = []
 	for word1 in parseArg1[u'words']:
 		for word2 in parseArg2[u'words']:
+			wordPairFeatures.append(word1[0]+'_'+word2[0])
+	return wordPairFeatures'''
+	return getWordPairFeaturesSimple(parseArg1[u'words'],parseArg2[u'words'])
+
+def getWordPairFeaturesSimple(words1,words2):
+	wordPairFeatures = []
+	for word1 in words1:
+		for word2 in words2:
 			wordPairFeatures.append(word1[0]+'_'+word2[0])
 	return wordPairFeatures

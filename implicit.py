@@ -2,6 +2,7 @@ import json
 import features
 import constants
 from features import Node
+import preprocess
 
 class Implicit:
 	def __init__(self,num_prule,num_dtree,num_wp):
@@ -79,12 +80,12 @@ class Implicit:
 				print sentID, docID, 'No parse tree'
 				continue
 			#print sentID, parseArg1[u'words'][0],parseArg2[u'words'][0]
-			line = ''
 			print sentID, docID
 			dtreeFeatures12 = features.getDependencyFeatures(parseArg1,parseArg2)
 			pruleFeatures12 = features.getProductionRuleFeatures(parseArg1,parseArg2)
 			wpFeatures = features.getWordPairFeatures(parseArg1,parseArg2)
 
+			line = ''
 			for k in self.features_prule:
 				a1 = k in pruleFeatures12[0]
 				a2 = k in pruleFeatures12[1]
@@ -114,6 +115,52 @@ class Implicit:
 				train_data.write(line+sense+'\n')
 
 		train_data.close()
+
+	def generateTestData(self):
+		data = open(constants.DEV_PATH)
+		test_data = open(constants.TEST_DATA_PATH,'w')
+
+		arr_data = [json.load(x) for x in data]
+		for sent in arr_data:
+			if not sent[u'Type']==u'Implicit':
+				continue
+			senses = sent[u'Sense']
+			text1 = sent[u'Arg1'][u'RawText']
+			text2 = sent[u'Arg2'][u'RawText']
+			words1 = sent[u'Arg1'][u'Word']
+			words2 = sent[u'Arg2'][u'Word']
+			ptree1,dtree1 = preprocess.parsePtreeDtree(text1)
+			ptree2,dtree2 = preprocess.parsePtreeDtree(text2)
+			wpFeatures = features.getWordPairFeaturesSimple(words1,words2)
+
+			line = ''
+			for k in self.features_prule:
+				a1 = k in ptree1
+				a2 = k in ptree2
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_dtree:
+				a1 = k in dtree1
+				a2 = k in dtree2
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_wp:
+				if k in wpFeatures:
+					line += k+' '
+
+			test_data.write(line+'\n')
+
+		test_data.close()
 
 if __name__ == '__main__':
 	implicit = Implicit(100,100,500)

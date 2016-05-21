@@ -3,18 +3,6 @@ import re
 import os
 import features
 
-def generateTrainData2(self):
-	data = open(constants.DATA_PATH2)
-	arr_data = [json.load(x) for x in data]
-	for sent in arr_data:
-		if not sent[u'Type']==u'Implicit':
-			continue
-		senses = sent[u'Sense']
-		text1 = sent[u'Arg1'][u'RawText']
-		text2 = sent[u'Arg2'][u'RawText']
-		words1 = sent[u'Arg1'][u'Word']
-		words2 = sent[u'Arg2'][u'Word']
-		
 def parsePtreeDtree(text):
 	filename = constants.TMP_DIR+"temp"
 	file_tmp = open(filename,'w')
@@ -37,7 +25,5 @@ def parsePtreeDtree(text):
 	ptree = re.sub(r'\(ROOT\n +','(',arr[0])
 	ptree = re.sub(r'\n','',ptree)
 	dtree = arr[1].split('\n')
-	print features.getProductionRuleFeaturesFromStr(ptree)
-	print features.getDependencyFeaturesFromStr(dtree)
-	
-parsePtreeDtree("I love you.")
+	return (features.getProductionRuleFeaturesFromStr(ptree),features.getDependencyFeaturesFromStr(dtree))
+
