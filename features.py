@@ -1,4 +1,5 @@
 import string
+import re
 
 class Node:
 	def __init__(self,val):
@@ -21,6 +22,8 @@ def buildParseTree(treeStr):
 			stack.append(Node(treeStr[i+1:i+l]))
 			i+=l+1
 			continue
+		elif treeStr[i]==' ':
+			i+=1
 		else:# a word
 			l=treeStr.find(')',i)-i
 			if l<0:
@@ -54,6 +57,38 @@ def getPruleFeatures(node):
 def getProductionRuleFeatures(parseArg1,parseArg2):
 	return (getPruleFeatures(buildParseTree(parseArg1[u'parsetree'])),
 		getPruleFeatures(buildParseTree(parseArg2[u'parsetree'])))
+
+def getProductionRuleFeaturesFromStr(prule):
+	return getPruleFeatures(buildParseTree(prule))
+
+##input:
+#nsubj(love-2, I-1)
+#dobj(love-2, you-3)
+def getDependencyFeaturesFromStr(arr):
+	depFeature = {}
+
+	for dep in arr:
+		search=re.search(r'(.*)\((.*)\,\s*(.*)\)',dep)
+		d = search.group(1)
+		governor = search.group(2).split('-')[0]
+		dependent = search.group(3).split('-')[0]
+		#print d,governor,dependent
+		if governor == u'ROOT':#ignore ROOT dependency
+			continue
+		if not governor in depFeature:
+			depFeature[governor]=[d]
+		else:
+			depFeature[governor].append(d)
+
+	arrDepFeature = []
+
+	for k in depFeature.keys():
+		feature = k+'_<-'
+		for dependency in depFeature[k]:
+			feature=feature+'_<'+dependency+'>'
+		arrDepFeature.append(feature)
+
+	return arrDepFeature
 
 def getDependencyFeatures(parseArg1,parseArg2):
 	
