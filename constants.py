@@ -5,6 +5,7 @@ Level_2_types = ['Asynchronous', 'Synchrony',
 
 DATA_PATH = 'pdtb-data-small.json'
 PARSE_PATH = 'pdtb-parses-small.json'
+TRAIN_DATA_PATH = 'pdtb.train'
 
 DTREE_MI_PATH = 'data/dtree-mi-Freq5-adj-args-13type.txt'
 PRULE_MI_PATH = 'data/rule-mi-Freq5-adj-args-13type-leaf.txt'

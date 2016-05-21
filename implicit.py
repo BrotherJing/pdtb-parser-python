@@ -1,7 +1,7 @@
 import json
-from dtree import *
-from prule import *
-from constants import *
+import features
+import constants
+from features import Node
 
 class Implicit:
 	def __init__(self,num_prule,num_dtree,num_wp):
@@ -10,7 +10,7 @@ class Implicit:
 		self.features_dtree={}
 		self.features_wp={}
 
-		prule = open(PRULE_MI_PATH)
+		prule = open(constants.PRULE_MI_PATH)
 		count = 0
 		for line in prule.readlines():
 			if count >= num_prule: break
@@ -21,7 +21,7 @@ class Implicit:
 				count += 1
 		prule.close()
 
-		dtree = open(DTREE_MI_PATH)
+		dtree = open(constants.DTREE_MI_PATH)
 		count = 0
 		for line in dtree.readlines():
 			if count >= num_dtree: break
@@ -32,7 +32,7 @@ class Implicit:
 				count += 1
 		dtree.close()
 
-		word_pair = open(WP_MI_PATH)
+		word_pair = open(constants.WP_MI_PATH)
 		count = 0
 		for line in word_pair.readlines():
 			if count >= num_wp: break
@@ -43,13 +43,10 @@ class Implicit:
 				count += 1
 		word_pair.close()
 
-		#print self.features_prule
-		#print self.features_dtree
-		#print self.features_wp
-
 	def generateTrainData(self):
-		parse = open(PARSE_PATH)
-		data = open(DATA_PATH)
+		parse = open(constants.PARSE_PATH)
+		data = open(constants.DATA_PATH)
+		train_data = open(constants.TRAIN_DATA_PATH,'w')
 
 		arr_parse = [json.loads(x) for x in parse][0]#only one line, the key is wsj_xxxx
 		arr_data = [json.loads(x) for x in data]#each line is a sentence of arg1,arg2
@@ -80,8 +77,41 @@ class Implicit:
 			if parseArg1 == None:
 				continue
 			#print sentID, parseArg1[u'words'][0],parseArg2[u'words'][0]
-			getDependencyFeatures(sent,parseArg1,parseArg2)
-			getProductionRuleFeatures(sent,parseArg1,parseArg2)
+			line = ''
+			dtreeFeatures12 = features.getDependencyFeatures(parseArg1,parseArg2)
+			pruleFeatures12 = features.getProductionRuleFeatures(parseArg1,parseArg2)
+			wpFeatures = features.getWordPairFeatures(parseArg1,parseArg2)
+
+			for k in self.features_prule:
+				a1 = k in pruleFeatures12[0]
+				a2 = k in pruleFeatures12[1]
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_dtree:
+				a1 = k in dtreeFeatures12[0]
+				a2 = k in dtreeFeatures12[1]
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_wp:
+				if k in wpFeatures:
+					line += k+' '
+
+			senses = sent[u'Sense']
+			for sense in senses:
+				train_data.write(line+sense+'\n')
+
+		train_data.close()
 
 if __name__ == '__main__':
-	Implicit(10,10,10)
+	implicit = Implicit(100,100,500)
+	implicit.generateTrainData()
