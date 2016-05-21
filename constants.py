@@ -7,6 +7,8 @@ DATA_PATH = 'pdtb-data-small.json'
 PARSE_PATH = 'pdtb-parses-small.json'
 TRAIN_DATA_PATH = 'pdtb.train'
 
+CLASSPATH   = "../lib/maxent-2.5.2/lib/trove.jar:../lib/maxent-2.5.2/output/maxent-2.5.2.jar:../lib/opennlp-tools-1.3.0/output/opennlp-tools-1.3.0.jar:../lib/opennlp-tools-1.3.0/lib/jwnl-1.3.3.jar"
+
 DTREE_MI_PATH = 'data/dtree-mi-Freq5-adj-args-13type.txt'
 PRULE_MI_PATH = 'data/rule-mi-Freq5-adj-args-13type-leaf.txt'
 WP_MI_PATH = 'data/word-pair-mi-Freq5-adj-args-13type-stemmed.txt'

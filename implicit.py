@@ -53,10 +53,11 @@ class Implicit:
 
 		##for all sentences in pdtb-data.json, find the parse tree, dependency tree of its arg1, arg2 in pdtb-parse.json
 		for sent in arr_data:
-			if not sent[u'Type']==u'Implicit':#only use implicit relation
-				continue
 			docID = sent[u'DocID']
 			sentID = sent[u'ID']
+			if not sent[u'Type']==u'Implicit':#only use implicit relation
+				print sentID, docID, 'Not Implicit'
+				continue
 			parseDoc = arr_parse[docID]
 			parseArg1 = None
 			parseArg2 = None
@@ -66,18 +67,20 @@ class Implicit:
 				for word in words_of_parse:
 					linkers = word[1][u'Linkers']
 					if not len(linkers)==0:
-						pos = linkers[0].split('_')
+						for linker in linkers:
+							pos = linker.split('_')
+							if pos[0]==u'arg1' and int(pos[1])==sentID:
+								parseArg1=parse
+							if pos[0]==u'arg2' and int(pos[1])==sentID:
+								parseArg2=parse
+					if not parseArg1==None and not parseArg2==None:
 						break
-				if len(pos)==0:
-					break
-				if pos[0]==u'arg1' and int(pos[1])==sentID:
-					parseArg1=parse
-				if pos[0]==u'arg2' and int(pos[1])==sentID:
-					parseArg2=parse
-			if parseArg1 == None:
+			if parseArg1 == None or parseArg2 == None:
+				print sentID, docID, 'No parse tree'
 				continue
 			#print sentID, parseArg1[u'words'][0],parseArg2[u'words'][0]
 			line = ''
+			print sentID, docID
 			dtreeFeatures12 = features.getDependencyFeatures(parseArg1,parseArg2)
 			pruleFeatures12 = features.getProductionRuleFeatures(parseArg1,parseArg2)
 			wpFeatures = features.getWordPairFeatures(parseArg1,parseArg2)
