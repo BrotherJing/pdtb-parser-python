@@ -32,11 +32,16 @@ class Parser:
 			line = result.readline()
 			line2 = file_expect.readline()
 			if not line or not line2: break
-			predict = line.split(' ')[-1].split('.')[1]
+			predict = line.split(' ')[-1].split('.')[1].strip()
 			answers = line2.split(' ')
 			for answer in answers:
-				if predict==answer:
-					print "correct!"
+				level2 = answer.split('.')[1].strip()
+				print predict,'\t',level2,
+				if predict==level2:
+					print "\tcorrect!"
+					break
+				else:
+					print ""
 			
 
 if __name__=='__main__':

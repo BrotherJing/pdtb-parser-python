@@ -5,3 +5,7 @@
 *.model
 *.test
 *.expect
+
+parserhelper/*.jar
+
+pdtb_ptree_dtree.json

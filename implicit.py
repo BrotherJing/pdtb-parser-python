@@ -122,6 +122,7 @@ class Implicit:
 	def generateTestData(self,size=20):
 		cnt = 0
 		preprocess.generatePtreeDtreeFile(constants.DEV_PATH)
+		#preprocess.generatePtreeDtreeFile('parserhelper/test.txt')
 		data = open(constants.PTREE_DTREE_PATH)
 		test_data = open(constants.TEST_DATA_PATH,'w')
 		expect_data = open(constants.EXPECT_DATA_PATH,'w')
@@ -166,7 +167,7 @@ class Implicit:
 					line += k+' '
 
 			test_data.write(line+'\n')
-			print line
+			#print line
 			
 			expect = ''
 			for sense in senses:
