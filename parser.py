@@ -22,13 +22,21 @@ class Parser:
 	def predict(self):
 		obj = Implicit(100,100,500)
 		obj.generateTestData()
-		cmd = 'cd /eval; java -cp '+constants.CLASSPATH+' Predict -real ../'+constants.TEST_DATA_PATH+'../'+constants.MODEL_PATH
-        print cmd
-        result = os.popen(cmd)
+		
+		file_expect = open(constants.EXPECT_DATA_PATH)
+		
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' Predict -real ../'+constants.TEST_DATA_PATH+' ../'+constants.MODEL_PATH
+		print cmd
+		result = os.popen(cmd)
 		while 1:
 			line = result.readline()
-			print line
-			if not line: break
+			line2 = file_expect.readline()
+			if not line or not line2: break
+			predict = line.split(' ')[-1].split('.')[1]
+			answers = line2.split(' ')
+			for answer in answers:
+				if predict==answer:
+					print "correct!"
 			
 
 if __name__=='__main__':
