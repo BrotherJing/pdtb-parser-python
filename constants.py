@@ -7,6 +7,7 @@ DATA_PATH = 'pdtb-data-small.json'
 PARSE_PATH = 'pdtb-parses-small.json'
 DATA_PATH2 = 'train_pdtb.json'
 DEV_PATH = 'dev_pdtb.json'
+PTREE_DTREE_PATH = 'pdtb_ptree_dtree.json'
 
 TRAIN_DATA_PATH = 'pdtb.train'
 MODEL_PATH = 'pdtb.model'

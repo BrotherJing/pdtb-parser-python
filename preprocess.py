@@ -3,6 +3,8 @@ import re
 import os
 import features
 
+## deprecated
+## use the command line version of stanford parser to generate ptree, dtree of one sentence
 def parsePtreeDtree(text):
 	filename = constants.TMP_DIR+"temp"
 	file_tmp = open(filename,'w')
@@ -27,3 +29,14 @@ def parsePtreeDtree(text):
 	dtree = arr[1].split('\n')
 	return (features.getProductionRuleFeaturesFromStr(ptree),features.getDependencyFeaturesFromStr(dtree))
 
+## generate a json file containing ptree, dtree, words of the sentences in the input file.
+## use parserhelper.jar
+def generatePtreeDtreeFile(input_file):
+	output_file = '../'+constants.PTREE_DTREE_PATH
+	
+	cmd = 'cd parserhelper; java -jar parserhelper.jar '+input_file+' '+output_file
+	result = os.popen(cmd)
+	while 1:
+		line = result.readline()
+		if not line: break
+		print line
