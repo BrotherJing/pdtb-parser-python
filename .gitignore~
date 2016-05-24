@@ -7,3 +7,6 @@
 *.expect
 
 parserhelper/*.jar
+tmp/*
+
+pdtb_ptree_dtree.json

@@ -5,14 +5,13 @@ Level_2_types = ['Asynchronous', 'Synchrony',
 
 DATA_PATH = 'pdtb-data-small.json'
 PARSE_PATH = 'pdtb-parses-small.json'
-DATA_PATH2 = 'train_pdtb.json'
 DEV_PATH = 'dev_pdtb.json'
-PTREE_DTREE_PATH = 'pdtb_ptree_dtree.json'
+PTREE_DTREE_PATH = 'tmp/pdtb_ptree_dtree.json'
 
-TRAIN_DATA_PATH = 'pdtb.train'
-MODEL_PATH = 'pdtb.model'
-TEST_DATA_PATH = 'pdtb.test'
-EXPECT_DATA_PATH = 'pdtb.expect'
+TRAIN_DATA_PATH = 'tmp/pdtb.train'
+MODEL_PATH = 'tmp/pdtb.model'
+TEST_DATA_PATH = 'tmp/pdtb.test'
+EXPECT_DATA_PATH = 'tmp/pdtb.expect'
 
 TMP_DIR = "/tmp/"
 

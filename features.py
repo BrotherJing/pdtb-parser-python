@@ -17,6 +17,9 @@ def buildParseTree(treeStr):
 		if treeStr[i]=='(':
 			l=treeStr.find(' ',i)-i
 			if l<0:
+				l=treeStr.find(')',i)-i-1
+				if l==0:
+					return Node("")# an empty node!
 				print 'parse error'
 				return None
 			stack.append(Node(treeStr[i+1:i+l]))
@@ -45,6 +48,8 @@ def buildParseTree(treeStr):
 
 def getPruleFeatures(node):
 	features=[]
+	if node==None:
+		return []
 	feature=node.val+'_->'
 	if len(node.children)==0:
 		return []

@@ -1,4 +1,5 @@
 import json
+import os
 import features
 import constants
 from features import Node
@@ -54,7 +55,7 @@ class Implicit:
 		arr_parse = [json.loads(x) for x in parse][0]#only one line, the key is wsj_xxxx
 		arr_data = [json.loads(x) for x in data]#each line is a sentence of arg1,arg2
 
-		##for all sentences in pdtb-data.json, find the parse tree, dependency tree of its arg1, arg2 in pdtb-parse.json
+		##for all sentences in pdtb-data.json, find the parse tree, dependency tree of its arg1, arg2 in pdtb-parses.json
 		for sent in arr_data:
 			docID = sent[u'DocID']
 			sentID = sent[u'ID']
@@ -114,7 +115,7 @@ class Implicit:
 
 			senses = sent[u'Sense']
 			for sense in senses:
-				train_data.write(line+sense+'\n')
+				train_data.write(line+sense.replace(' ','')+'\n')#'pragmatic cause' contains space!!
 
 		train_data.close()
 
@@ -124,14 +125,18 @@ class Implicit:
 		preprocess.generatePtreeDtreeFile(constants.DEV_PATH)
 		#preprocess.generatePtreeDtreeFile('parserhelper/test.txt')
 		data = open(constants.PTREE_DTREE_PATH)
+		
+		if os.path.exists(constants.TEST_DATA_PATH):
+			return
+		
 		test_data = open(constants.TEST_DATA_PATH,'w')
 		expect_data = open(constants.EXPECT_DATA_PATH,'w')
 
 		arr_data = [json.loads(x) for x in data]
 		for sent in arr_data:
 			sid = sent[u'ID']
-			print sid
-			if cnt>=size:
+			print "generate test data for sentence#",sid
+			if not size==0 and cnt>=size:
 				break
 			cnt+=1
 			senses = sent[u'Sense']
@@ -171,7 +176,7 @@ class Implicit:
 			
 			expect = ''
 			for sense in senses:
-				expect+=sense+' '
+				expect+=sense.replace(' ','')+' '
 			expect_data.write(expect[:-1]+'\n')
 
 		test_data.close()
