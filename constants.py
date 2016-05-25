@@ -1,13 +1,23 @@
 Level_2_types = ['Asynchronous', 'Synchrony',
-        'Cause', 'Pragmatic_cause', 
+        'Cause', 'Pragmatic cause', 
         'Contrast', 'Concession', 
         'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List']
 
-DATA_PATH = 'pdtb-data-small.json'
-PARSE_PATH = 'pdtb-parses-small.json'
-DEV_PATH = 'dev_pdtb.json'
-PTREE_DTREE_PATH = 'tmp/pdtb_ptree_dtree.json'
+Level_2_types_full = ['Asynchronous', 'Synchrony',
+        'Cause', 'Pragmatic cause', "Condition" ,"Pragmatic condition",
+        'Contrast', 'Concession', "Pragmatic contrast", "Pragmatic concession",
+        'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List', "Exception"]
 
+#data file
+DATA_PATH = 'pdtb-data.json'
+PARSE_PATH = 'pdtb-parses.json'
+DEV_PATH = 'dev_pdtb.json'
+
+#tmp file
+MI_PTREE_LIST = 'tmp/mi_ptree'
+MI_DTREE_LIST = 'tmp/mi_dtree'
+MI_WP_LIST = 'tmp/mi_wp'
+PTREE_DTREE_PATH = 'tmp/pdtb_ptree_dtree.json'
 TRAIN_DATA_PATH = 'tmp/pdtb.train'
 MODEL_PATH = 'tmp/pdtb.model'
 TEST_DATA_PATH = 'tmp/pdtb.test'
