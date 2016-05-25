@@ -48,7 +48,7 @@ public class CreateModel {
     public static double SMOOTHING_OBSERVATION = 0.1;
     
     private static void usage() {
-      System.err.println("java CreateModel [-real] dataFile");
+      System.err.println("java CreateModel [-real] dataFile [iter]");
       System.exit(1);
     }
     
@@ -59,6 +59,7 @@ public class CreateModel {
      */
     public static void main (String[] args) {
       int ai = 0;
+      int iter = 100;
       boolean real = false;
       while (args[ai].startsWith("-")) {
         if (args[ai].equals("-real")) {
@@ -71,6 +72,10 @@ public class CreateModel {
         ai++;
       }
       String dataFileName = new String(args[ai]);
+      ai++;
+      if(args.length>ai){
+        iter = Integer.parseInt(args[ai]);
+      }
       //String modelFileName =
       //  dataFileName.substring(0,dataFileName.lastIndexOf('.'))
       //  + "Model.txt";
@@ -92,7 +97,7 @@ public class CreateModel {
           model = GIS.trainModel(es,USE_SMOOTHING);
         }
         else {
-          model = GIS.trainModel(100, new OnePassRealValueDataIndexer(es,0), USE_SMOOTHING);
+          model = GIS.trainModel(iter, new OnePassRealValueDataIndexer(es,0), USE_SMOOTHING);
         }
         
         File outputFile = new File(modelFileName);

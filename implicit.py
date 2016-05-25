@@ -55,6 +55,9 @@ class Implicit:
 		arr_parse = [json.loads(x) for x in parse][0]#only one line, the key is wsj_xxxx
 		arr_data = [json.loads(x) for x in data]#each line is a sentence of arg1,arg2
 
+		parse.close()
+		data.close()
+		
 		##for all sentences in pdtb-data.json, find the parse tree, dependency tree of its arg1, arg2 in pdtb-parses.json
 		for sent in arr_data:
 			docID = sent[u'DocID']
