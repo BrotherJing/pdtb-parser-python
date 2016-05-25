@@ -243,7 +243,7 @@ class Parser:
 		if os.path.exists(constants.MODEL_PATH):
 			return
 		Implicit(100,100,500).generateTrainData()
-		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 200'
 		#print 'Training...'
 		print cmd
 		os.system(cmd)
