@@ -109,82 +109,118 @@ class Parser:
 						wp_features[k][sense]+=1
 
 		#calculate MI
-		ent_d = 0
 		total = 0
-		for level2 in level2_cnts.keys():
-			total+=level2_cnts[level2]
-		for level2 in level2_cnts.keys():
-			if level2_cnts[level2]==0: continue
-			p = level2_cnts[level2]*1.0/total
-			ent_d += p*math.log(p,2)
-		ent_d = -ent_d
-
 		ptree_list = []
 		dtree_list = []
 		wp_list = []
+		for level2 in level2_cnts.keys():
+			total+=level2_cnts[level2]
 
 		for ptree in ptree_features.keys():
-			ent_d0,ent_d1 = 0,0# 0 is not appear, 1 is appear
-			total_appear,total_not_appear = 0,0
+			mi = []
+			total_appear=0
 			for level2 in ptree_features[ptree].keys():
 				total_appear+=ptree_features[ptree][level2]
 			if total_appear < 5:# frequency filter
 				continue
-			total_not_appear = total - total_appear
-			for level2 in ptree_features[ptree].keys():
-				if not ptree_features[ptree][level2]==0:
-					p_in_appear = ptree_features[ptree][level2]*1.0/total_appear
-					ent_d1 += p_in_appear*math.log(p_in_appear,2)
-				if not level2_cnts[level2]-ptree_features[ptree][level2]==0:
-					p_in_not_appear = (level2_cnts[level2]-ptree_features[ptree][level2])*1.0/total_not_appear
-					ent_d0 += p_in_not_appear*math.log(p_in_not_appear,2)
-			ent_d0 = -ent_d0
-			ent_d1 = -ent_d1
-
-			gain = ent_d-(ent_d0*total_not_appear/total+ent_d1*total_appear/total)
-			ptree_list.append((ptree,gain))
+			for level2 in level2_cnts.keys():
+				if not level2 in ptree_features[ptree]:
+					continue
+				n11 = ptree_features[ptree][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
+			
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			ptree_list.append((ptree,mi_max[1],mi_max[0]))
 
 		for dtree in dtree_features.keys():
-			ent_d0,ent_d1 = 0,0# 0 is not appear, 1 is appear
-			total_appear,total_not_appear = 0,0
+			mi = []
+			total_appear = 0
 			for level2 in dtree_features[dtree].keys():
 				total_appear+=dtree_features[dtree][level2]
 			if total_appear < 5:# frequency filter
 				continue
-			total_not_appear = total - total_appear
-			for level2 in dtree_features[dtree].keys():
-				if not dtree_features[dtree][level2]==0:
-					p_in_appear = dtree_features[dtree][level2]*1.0/total_appear
-					ent_d1 += p_in_appear*math.log(p_in_appear,2)
-				if not level2_cnts[level2]-dtree_features[dtree][level2]==0:
-					p_in_not_appear = (level2_cnts[level2]-dtree_features[dtree][level2])*1.0/total_not_appear
-					ent_d0 += p_in_not_appear*math.log(p_in_not_appear,2)
-			ent_d0 = -ent_d0
-			ent_d1 = -ent_d1
-
-			gain = ent_d-(ent_d0*total_not_appear/total+ent_d1*total_appear/total)
-			dtree_list.append((dtree,gain))
+			for level2 in level2_cnts.keys():
+				if not level2 in dtree_features[dtree]:
+					continue
+				n11 = dtree_features[dtree][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
+			
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			dtree_list.append((dtree,mi_max[1],mi_max[0]))
 
 		for wp in wp_features.keys():
-			ent_d0,ent_d1 = 0,0# 0 is not appear, 1 is appear
-			total_appear,total_not_appear = 0,0
+			mi = []
+			total_appear = 0
 			for level2 in wp_features[wp].keys():
 				total_appear+=wp_features[wp][level2]
-			if total_appear < 5:# frequency filter
+			if total_appear < 10:# frequency filter
 				continue
-			total_not_appear = total - total_appear
-			for level2 in wp_features[wp].keys():
-				if not wp_features[wp][level2]==0:
-					p_in_appear = wp_features[wp][level2]*1.0/total_appear
-					ent_d1 += p_in_appear*math.log(p_in_appear,2)
-				if not level2_cnts[level2]-wp_features[wp][level2]==0:
-					p_in_not_appear = (level2_cnts[level2]-wp_features[wp][level2])*1.0/total_not_appear
-					ent_d0 += p_in_not_appear*math.log(p_in_not_appear,2)
-			ent_d0 = -ent_d0
-			ent_d1 = -ent_d1
+			for level2 in level2_cnts.keys():
+				if not level2 in wp_features[wp]:
+					continue
+				n11 = wp_features[wp][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
 
-			gain = ent_d-(ent_d0*total_not_appear/total+ent_d1*total_appear/total)
-			wp_list.append((wp,gain))
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			wp_list.append((wp,mi_max[1],mi_max[0]))
+
 
 		ptree_list.sort(cmpt)
 		dtree_list.sort(cmpt)
@@ -195,9 +231,9 @@ class Parser:
 		wp_file = open(constants.MI_WP_LIST,'w')
 
 		for i in range(min(1000,len(ptree_list),len(dtree_list),len(wp_list))):
-			ptree_file.write(ptree_list[i][0]+' '+str(ptree_list[i][1])+'\n')
-			dtree_file.write(dtree_list[i][0]+' '+str(dtree_list[i][1])+'\n')
-			wp_file.write(wp_list[i][0]+' '+str(wp_list[i][1])+'\n')
+			ptree_file.write(ptree_list[i][0]+' '+str(ptree_list[i][2])+' '+str(ptree_list[i][1])+'\n')
+			dtree_file.write(dtree_list[i][0]+' '+str(dtree_list[i][2])+' '+str(dtree_list[i][1])+'\n')
+			wp_file.write(wp_list[i][0]+' '+str(wp_list[i][2])+' '+str(wp_list[i][1])+'\n')
 
 		ptree_file.close()
 		dtree_file.close()
