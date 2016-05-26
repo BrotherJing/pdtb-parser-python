@@ -12,6 +12,7 @@ class Node:
 def buildParseTree(treeStr):
 	treeStr = treeStr[1:-1].strip()
 	if treeStr[0]=='X':#bad parse!!!
+		#print 'bad parse!'
 		return None
 	stack=[]
 	i = 0

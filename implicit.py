@@ -7,11 +7,12 @@ import preprocess
 
 class Implicit:
 
-	def __init__(self,num_prule,num_dtree,num_wp):
+	def __init__(self,num_prule,num_dtree,num_wp,num_fl):
 
 		self.features_prule={}
 		self.features_dtree={}
 		self.features_wp={}
+		self.features_fl={}
 
 		prule = open(constants.PRULE_MI_PATH)
 		count = 0
@@ -45,6 +46,17 @@ class Implicit:
 				self.features_wp[rule]=float(tokens[-1])
 				count += 1
 		word_pair.close()
+
+		fl = open(constants.FL_MI_PATH)
+		count = 0
+		for line in fl.readlines():
+			if count >= num_fl: break
+			tokens=line.strip().split(' ')
+			rule=tokens[0]
+			if not rule in self.features_fl:
+				self.features_fl[rule]=float(tokens[-1])
+				count += 1
+		fl.close()
 
 	#generate training data from the file of sentences, which contains ptree, dtree and word.
 	def generateTrainData2(self):
@@ -134,14 +146,14 @@ class Implicit:
 		arr_data = [json.loads(x) for x in data]
 		for sent in arr_data:
 			sid = sent[u'ID']
-			print "generate train data for sentence#",sid
+			print "generate train data for sentence#",sid+'\r',
 			senses = sent[u'Sense']
 			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
 			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
 			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
 			dtree2 = features.getDependencyFeaturesFromStr(sent[u'Arg2'][u'Dependency'])
 			wpFeatures = features.getWordPairFeaturesSimple2(sent[u'Arg1'][u'Lemma'],sent[u'Arg2'][u'Lemma'])
-			
+
 			line = ''
 			for k in self.features_prule:
 				a1 = k in ptree1
@@ -167,14 +179,32 @@ class Implicit:
 				if k in wpFeatures:
 					line += k+' '
 
+			#first-last-first3
+			fl_features = []
+			if len(sent[u'Arg1'][u'Lemma'])>=3:
+				fl_features.append('first31_'+'_'.join(sent[u'Arg1'][u'Lemma'][:3]))
+			if len(sent[u'Arg2'][u'Lemma'])>=3:
+				fl_features.append('first32_'+'_'.join(sent[u'Arg2'][u'Lemma'][:3]))
+			fl_features.append('first1_'+sent[u'Arg1'][u'Lemma'][0])
+			fl_features.append('first2_'+sent[u'Arg2'][u'Lemma'][0])
+			fl_features.append('first12_'+sent[u'Arg1'][u'Lemma'][0]+'_'+sent[u'Arg2'][u'Lemma'][0])
+			fl_features.append('last1_'+sent[u'Arg1'][u'Lemma'][-1])
+			fl_features.append('last2_'+sent[u'Arg2'][u'Lemma'][-1])
+			fl_features.append('last12_'+sent[u'Arg1'][u'Lemma'][-1]+'_'+sent[u'Arg2'][u'Lemma'][-1])
+
+			for k in fl_features:
+				if k in self.features_fl:
+					line += k+' '
+
 			#print line
 			for sense in senses:
 				train_data.write(line+sense.replace(' ','')+'\n')#'pragmatic cause' contains space!!
 
 		train_data.close()
+		print ' '
 
 	#first generate the ptree, dtree of all sentences into a file, then use this file to generate test data
-	def generateTestData(self,size=20):
+	def generateTestData(self,size=0):
 		cnt = 0
 		preprocess.generatePtreeDtreeFile(constants.DEV_PATH,constants.DEV_PTREE_DTREE_PATH)
 		#preprocess.generatePtreeDtreeFile('parserhelper/test.txt')
@@ -198,7 +228,7 @@ class Implicit:
 			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
 			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
 			dtree2 = features.getDependencyFeaturesFromStr(sent[u'Arg2'][u'Dependency'])
-			wpFeatures = features.getWordPairFeaturesSimple(sent[u'Arg1'][u'Word'],sent[u'Arg2'][u'Word'])
+			wpFeatures = features.getWordPairFeaturesSimple(sent[u'Arg1'][u'Lemma'],sent[u'Arg2'][u'Lemma'])
 			
 			line = ''
 			for k in self.features_prule:
@@ -225,8 +255,24 @@ class Implicit:
 				if k in wpFeatures:
 					line += k+' '
 
+			#first-last-first3
+			fl_features = []
+			if len(sent[u'Arg1'][u'Lemma'])>=3:
+				fl_features.append('first31_'+'_'.join(sent[u'Arg1'][u'Lemma'][:3]))
+			if len(sent[u'Arg2'][u'Lemma'])>=3:
+				fl_features.append('first32_'+'_'.join(sent[u'Arg2'][u'Lemma'][:3]))
+			fl_features.append('first1_'+sent[u'Arg1'][u'Lemma'][0])
+			fl_features.append('first2_'+sent[u'Arg2'][u'Lemma'][0])
+			fl_features.append('first12_'+sent[u'Arg1'][u'Lemma'][0]+'_'+sent[u'Arg2'][u'Lemma'][0])
+			fl_features.append('last1_'+sent[u'Arg1'][u'Lemma'][-1])
+			fl_features.append('last2_'+sent[u'Arg2'][u'Lemma'][-1])
+			fl_features.append('last12_'+sent[u'Arg1'][u'Lemma'][-1]+'_'+sent[u'Arg2'][u'Lemma'][-1])
+
+			for k in fl_features:
+				if k in self.features_fl:
+					line += k+' '
+
 			test_data.write(line+'\n')
-			#print line
 			
 			expect = ''
 			for sense in senses:
@@ -300,5 +346,5 @@ class Implicit:
 		expect_data.close()
 
 if __name__ == '__main__':
-	implicit = Implicit(100,100,500)
+	implicit = Implicit(100,100,500,100)
 	implicit.generateTestData()
