@@ -15,6 +15,202 @@ class Parser:
 		pass
 
 	def feature_selection(self):
+		preprocess.generatePtreeDtreeFile(constants.TRAIN_PATH,constants.TRAIN_PTREE_DTREE_PATH)
+		data = open(constants.TRAIN_PTREE_DTREE_PATH)
+
+		ptree_features = {}
+		dtree_features = {}
+		wp_features = {}
+
+		ptree_cnt = 0
+		dtree_cnt = 0
+		wp_cnt = 0
+		level2_cnts = {}
+		for level2 in constants.Level_2_types_full:
+			level2_cnts[level2]=0
+
+		arr_data = [json.loads(x) for x in data]
+		for sent in arr_data:
+			sid = sent[u'ID']
+			print 'process sentence#'+sid
+			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
+			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
+			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
+			dtree2 = features.getDependencyFeaturesFromStr(sent[u'Arg2'][u'Dependency'])
+			wpFeatures = features.getWordPairFeaturesSimple2(sent[u'Arg1'][u'Lemma'],sent[u'Arg2'][u'Lemma'])
+
+			senses = sent[u'Sense']
+			for sense in senses:
+				if '.' in sense:
+					level2_cnts[sense.split('.')[1]]+=1
+
+			for k in set(ptree1).union(set(ptree2)):
+				feature = k
+				if not feature in ptree_features:
+					ptree_features[feature]={}
+					ptree_cnt+=1
+				for sense in senses:
+					if '.' in sense:
+						sense = sense.split('.')[1]
+						if not sense in ptree_features[feature]:
+							ptree_features[feature][sense]=0
+						ptree_features[feature][sense]+=1
+
+			for k in set(dtree1).union(set(dtree2)):
+				feature = k
+				if not feature in dtree_features:
+					dtree_features[feature]={}
+					dtree_cnt+=1
+				for sense in senses:
+					if '.' in sense:
+						sense = sense.split('.')[1]
+						if not sense in dtree_features[feature]:
+							dtree_features[feature][sense]=0
+						dtree_features[feature][sense]+=1
+
+			for k in set(wpFeatures):
+				if k not in wp_features:
+					wp_features[k]={}
+					wp_cnt+=1
+				for sense in senses:
+					if '.' in sense:
+						sense = sense.split('.')[1]
+						if not sense in wp_features[k]:
+							wp_features[k][sense]=0
+						wp_features[k][sense]+=1
+
+		#calculate MI
+		total = 0
+		ptree_list = []
+		dtree_list = []
+		wp_list = []
+		for level2 in level2_cnts.keys():
+			total+=level2_cnts[level2]
+
+		for ptree in ptree_features.keys():
+			mi = []
+			total_appear=0
+			for level2 in ptree_features[ptree].keys():
+				total_appear+=ptree_features[ptree][level2]
+			if total_appear < 5:# frequency filter
+				continue
+			for level2 in level2_cnts.keys():
+				if not level2 in ptree_features[ptree]:
+					continue
+				n11 = ptree_features[ptree][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
+			
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			ptree_list.append((ptree,mi_max[1],mi_max[0]))
+
+		for dtree in dtree_features.keys():
+			mi = []
+			total_appear = 0
+			for level2 in dtree_features[dtree].keys():
+				total_appear+=dtree_features[dtree][level2]
+			if total_appear < 5:# frequency filter
+				continue
+			for level2 in level2_cnts.keys():
+				if not level2 in dtree_features[dtree]:
+					continue
+				n11 = dtree_features[dtree][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
+			
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			dtree_list.append((dtree,mi_max[1],mi_max[0]))
+
+		for wp in wp_features.keys():
+			mi = []
+			total_appear = 0
+			for level2 in wp_features[wp].keys():
+				total_appear+=wp_features[wp][level2]
+			if total_appear < 10:# frequency filter
+				continue
+			for level2 in level2_cnts.keys():
+				if not level2 in wp_features[wp]:
+					continue
+				n11 = wp_features[wp][level2]
+				n01 = level2_cnts[level2]-n11
+				n10 = total_appear-n11
+				n00 = total-n11-n01-n10
+				n1_ = n11+n10
+				n0_ = n01+n00
+				n_1 = n01+n11
+				n_0 = n10+n00
+				i=0
+				if not n11==0:
+					i+=n11*1.0/total*math.log(total*n11*1.0/(n1_*n_1),2)
+				if not n01==0:
+					i+=n01*1.0/total*math.log(total*n01*1.0/(n0_*n_1),2)
+				if not n10==0:
+					i+=n10*1.0/total*math.log(total*n10*1.0/(n1_*n_0),2)
+				if not n00==0:
+					i+=n00*1.0/total*math.log(total*n00*1.0/(n0_*n_0),2)
+				mi.append((level2,i))
+
+			mi_max = mi[0]
+			for i in mi:
+				if i[1]>mi_max[1]:
+					mi_max=i
+			wp_list.append((wp,mi_max[1],mi_max[0]))
+
+
+		ptree_list.sort(cmpt)
+		dtree_list.sort(cmpt)
+		wp_list.sort(cmpt)
+
+		ptree_file = open(constants.MI_PTREE_LIST,'w')
+		dtree_file = open(constants.MI_DTREE_LIST,'w')
+		wp_file = open(constants.MI_WP_LIST,'w')
+
+		for i in range(min(1000,len(ptree_list),len(dtree_list),len(wp_list))):
+			ptree_file.write(ptree_list[i][0]+' '+str(ptree_list[i][2])+' '+str(ptree_list[i][1])+'\n')
+			dtree_file.write(dtree_list[i][0]+' '+str(dtree_list[i][2])+' '+str(dtree_list[i][1])+'\n')
+			wp_file.write(wp_list[i][0]+' '+str(wp_list[i][2])+' '+str(wp_list[i][1])+'\n')
+
+		ptree_file.close()
+		dtree_file.close()
+		wp_file.close()
+
+	def feature_selection2(self):
 		parse = open(constants.PARSE_PATH)
 		data = open(constants.DATA_PATH)
 
@@ -242,7 +438,7 @@ class Parser:
 	def train(self):
 		if os.path.exists(constants.MODEL_PATH):
 			return
-		Implicit(100,100,500).generateTrainData()
+		Implicit(250,150,600).generateTrainData()
 		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 200'
 		#print 'Training...'
 		print cmd
@@ -253,7 +449,7 @@ class Parser:
 		correct = 0
 		total = 0
 		
-		Implicit(100,100,500).generateTestData(0)
+		Implicit(250,150,600).generateTestData(0)
 		
 		file_expect = open(constants.EXPECT_DATA_PATH)
 		
@@ -288,7 +484,7 @@ class Parser:
 
 if __name__=='__main__':
 	parser = Parser()
-	#parser.train()
-	#parser.predict()
-	parser.feature_selection()
+	parser.train()
+	parser.predict()
+	#parser.feature_selection()
 

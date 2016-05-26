@@ -47,7 +47,7 @@ class Implicit:
 		word_pair.close()
 
 	#generate training data from the file of sentences, which contains ptree, dtree and word.
-	def generateTrainData(self):
+	def generateTrainData2(self):
 		parse = open(constants.PARSE_PATH)
 		data = open(constants.DATA_PATH)
 		train_data = open(constants.TRAIN_DATA_PATH,'w')
@@ -122,12 +122,63 @@ class Implicit:
 
 		train_data.close()
 
+	def generateTrainData(self):
+		preprocess.generatePtreeDtreeFile(constants.TRAIN_PATH,constants.TRAIN_PTREE_DTREE_PATH)
+		data = open(constants.TRAIN_PTREE_DTREE_PATH)
+		
+		if os.path.exists(constants.TRAIN_DATA_PATH):
+			return
+
+		train_data = open(constants.TRAIN_DATA_PATH,'w')
+
+		arr_data = [json.loads(x) for x in data]
+		for sent in arr_data:
+			sid = sent[u'ID']
+			print "generate train data for sentence#",sid
+			senses = sent[u'Sense']
+			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
+			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
+			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
+			dtree2 = features.getDependencyFeaturesFromStr(sent[u'Arg2'][u'Dependency'])
+			wpFeatures = features.getWordPairFeaturesSimple2(sent[u'Arg1'][u'Lemma'],sent[u'Arg2'][u'Lemma'])
+			
+			line = ''
+			for k in self.features_prule:
+				a1 = k in ptree1
+				a2 = k in ptree2
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_dtree:
+				a1 = k in dtree1
+				a2 = k in dtree2
+				if a1:
+					line += k+':1 '
+				if a2:
+					line += k+':2 '
+				if a1 and a2:
+					line += k+':12 '
+
+			for k in self.features_wp:
+				if k in wpFeatures:
+					line += k+' '
+
+			#print line
+			for sense in senses:
+				train_data.write(line+sense.replace(' ','')+'\n')#'pragmatic cause' contains space!!
+
+		train_data.close()
+
 	#first generate the ptree, dtree of all sentences into a file, then use this file to generate test data
 	def generateTestData(self,size=20):
 		cnt = 0
-		preprocess.generatePtreeDtreeFile(constants.DEV_PATH)
+		preprocess.generatePtreeDtreeFile(constants.DEV_PATH,constants.DEV_PTREE_DTREE_PATH)
 		#preprocess.generatePtreeDtreeFile('parserhelper/test.txt')
-		data = open(constants.PTREE_DTREE_PATH)
+		data = open(constants.DEV_PTREE_DTREE_PATH)
 		
 		if os.path.exists(constants.TEST_DATA_PATH):
 			return

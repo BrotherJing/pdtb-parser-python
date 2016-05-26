@@ -11,6 +11,8 @@ class Node:
 
 def buildParseTree(treeStr):
 	treeStr = treeStr[1:-1].strip()
+	if treeStr[0]=='X':#bad parse!!!
+		return None
 	stack=[]
 	i = 0
 	while i < len(treeStr):
@@ -150,4 +152,11 @@ def getWordPairFeaturesSimple(words1,words2):
 	for word1 in words1:
 		for word2 in words2:
 			wordPairFeatures.append(word1[0]+'_'+word2[0])
+	return wordPairFeatures
+
+def getWordPairFeaturesSimple2(words1,words2):
+	wordPairFeatures = []
+	for word1 in words1:
+		for word2 in words2:
+			wordPairFeatures.append(word1+'_'+word2)
 	return wordPairFeatures
