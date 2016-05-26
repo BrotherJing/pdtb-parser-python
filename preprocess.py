@@ -31,13 +31,14 @@ def parsePtreeDtree(text):
 
 ## generate a json file containing ptree, dtree, words of the sentences in the input file.
 ## use parserhelper.jar
-def generatePtreeDtreeFile(input_file):
+def generatePtreeDtreeFile(input_file,output_file):
 
-	if os.path.exists(constants.PTREE_DTREE_PATH):
+	if os.path.exists(output_file):
 		return
 	
-	output_file = '../'+constants.PTREE_DTREE_PATH
+	output_file = '../'+output_file
 	input_file = '../'+input_file
 	
 	cmd = 'cd parserhelper; java -jar parserhelper.jar '+input_file+' '+output_file
+	print cmd
 	os.system(cmd)

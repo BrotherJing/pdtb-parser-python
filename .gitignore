@@ -10,3 +10,7 @@ parserhelper/*.jar
 tmp/*
 
 *.json
+
+data/mi_ptree
+data/mi_dtree
+data/mi_wp
