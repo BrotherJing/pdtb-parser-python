@@ -3,6 +3,17 @@ Level_2_types = ['Asynchronous', 'Synchrony',
         'Contrast', 'Concession', 
         'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List']
 
+Level_1_2_types = ['Temporal.Asynchronous','Temporal.Synchrony',
+	'Contingency.Cause','Contingency.Pragmatic cause',
+	'Comparison.Contrast','Comparison.Concession',
+	'Expansion.Conjunction','Expansion.Instantiation',
+	'Expansion.Restatement','Expansion.Alternative','Expansion.List','Expansion.Exception']
+
+Level_1_2_types_full = ['Temporal.Asynchronous', 'Temporal.Synchrony',
+        'Contigency.Cause', 'Contingency.Pragmatic cause', "Contigency.Condition" ,"Contigency.Pragmatic condition",
+        'Comparison.Contrast', 'Comparison.Concession', "Comparison.Pragmatic contrast", "Comparison.Pragmatic concession",
+        'Expansion.Conjunction', 'Expansion.Instantiation', 'Expansion.Restatement', 'Expansion.Alternative', 'Expansion.List', "Expansion.Exception"]
+
 Level_2_types_full = ['Asynchronous', 'Synchrony',
         'Cause', 'Pragmatic cause', "Condition" ,"Pragmatic condition",
         'Contrast', 'Concession', "Pragmatic contrast", "Pragmatic concession",
@@ -13,6 +24,8 @@ DATA_PATH = 'pdtb-data.json'
 PARSE_PATH = 'pdtb-parses.json'
 DEV_PATH = 'dev_pdtb.json'
 TRAIN_PATH = 'train_pdtb.json'
+TEST_PATH='test_pdtb.json'
+PREDICT_PATH = 'predict_pdtb.json'
 
 #tmp file
 MI_PTREE_LIST = 'data/mi_ptree'

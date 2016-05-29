@@ -59,8 +59,9 @@ class Implicit:
 		fl.close()
 
 	#generate training data from the file of sentences, which contains ptree, dtree and word.
-	def generateTrainData(self):
-		preprocess.generatePtreeDtreeFile(constants.TRAIN_PATH,constants.TRAIN_PTREE_DTREE_PATH)
+	def generateTrainData(self,train_file):
+		#preprocess.generatePtreeDtreeFile(constants.TRAIN_PATH,constants.TRAIN_PTREE_DTREE_PATH)
+		preprocess.generatePtreeDtreeFile(train_file,constants.TRAIN_PTREE_DTREE_PATH)
 		data = open(constants.TRAIN_PTREE_DTREE_PATH)
 		
 		if os.path.exists(constants.TRAIN_DATA_PATH):
@@ -123,30 +124,28 @@ class Implicit:
 
 			#print line
 			for sense in senses:
-				train_data.write(line+sense.replace(' ','')+'\n')#'pragmatic cause' contains space!!
+				train_data.write(line+sense.replace(' ','_')+'\n')#'pragmatic cause' contains space!! replace with '_', recover it later..
 
 		train_data.close()
 		print ' '
 
 	#first generate the ptree, dtree of all sentences into a file, then use this file to generate test data
-	def generateTestData(self,size=0):
-		cnt = 0
-		preprocess.generatePtreeDtreeFile(constants.DEV_PATH,constants.DEV_PTREE_DTREE_PATH)
+	def generateTestData(self,test_file_path,expect_file_path=''):
+		generate_expect_file = not expect_file_path==''
+		#preprocess.generatePtreeDtreeFile(constants.DEV_PATH,constants.DEV_PTREE_DTREE_PATH)
+		preprocess.generatePtreeDtreeFile(test_file_path,constants.DEV_PTREE_DTREE_PATH)
 		data = open(constants.DEV_PTREE_DTREE_PATH)
 		
 		if os.path.exists(constants.TEST_DATA_PATH):
 			return
-		
 		test_data = open(constants.TEST_DATA_PATH,'w')
-		expect_data = open(constants.EXPECT_DATA_PATH,'w')
+		if generate_expect_file:
+			expect_data = open(constants.EXPECT_DATA_PATH,'w')
 
 		arr_data = [json.loads(x) for x in data]
 		for sent in arr_data:
 			sid = sent[u'ID']
 			print "generate test data for sentence#",sid,'\r',
-			if not size==0 and cnt>=size:
-				break
-			cnt+=1
 			senses = sent[u'Sense']
 			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
 			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
@@ -198,16 +197,18 @@ class Implicit:
 
 			test_data.write(line+'\n')
 			
-			expect = ''
-			for sense in senses:
-				expect+=sense.replace(' ','')+' '
-			expect_data.write(expect[:-1]+'\n')
+			if generate_expect_file:
+				expect = ''
+				for sense in senses:
+					expect+=sense.replace(' ','_')+' '
+				expect_data.write(expect[:-1]+'\n')
 
 		test_data.close()
-		expect_data.close()
 
+		if generate_expect_file:
+			expect_data.close()
 		print ''
 
 if __name__ == '__main__':
 	implicit = Implicit(100,100,500,100)
-	implicit.generateTestData()
+	implicit.generateTestData(constants.DEV_PATH)

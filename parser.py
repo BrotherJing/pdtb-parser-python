@@ -1,11 +1,9 @@
 import json
 import os
 import math
+import argparse
 from implicit import Implicit
 import constants
-import features
-from features import Node
-import preprocess
 
 def cmpt(x,y):
 	return -cmp(x[1],y[1])
@@ -282,21 +280,48 @@ class Parser:
 
 		print '\n'
 
-	def train(self):
+	def train(self,train_file):
 		if os.path.exists(constants.MODEL_PATH):
 			return
-		Implicit(250,150,600,200).generateTrainData()
-		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 200'
+		Implicit(250,100,700,70).generateTrainData(train_file)
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 70'
 		#print 'Training...'
 		print cmd
 		os.system(cmd)
 
-	def predict(self):
+	def predict(self,test_file):
+		
+		Implicit(250,100,700,70).generateTestData(test_file)
+
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' Predict -real ../'+constants.TEST_DATA_PATH+' ../'+constants.MODEL_PATH
+		print cmd
+		result = os.popen(cmd)
+
+		file_test = open(test_file)
+		file_predict = open(constants.PREDICT_PATH,'w')
+		arr_test = [json.loads(x) for x in file_test]
+
+		for sent in arr_test:
+			if sent[u'Type']=='Explicit':#we can predict Implicit, EntRel and AltLex
+				file_predict.write(json.dumps(sent)+'\n')
+				continue
+			line = result.readline()
+			predict = line.strip().split(' ')[-1]#level 2 type
+			if 'Pragmaticcause' in predict or 'Pragmatic_cause' in predict:
+				predict = 'Contingency.Pragmatic cause'
+			sent[u'Sense']=[predict]
+			file_predict.write(json.dumps(sent)+'\n')
+
+		file_test.close()
+		file_predict.close()
+
+
+	def predict_with_answer(self):
 
 		correct = 0
 		total = 0
 		
-		Implicit(250,150,600,200).generateTestData()
+		Implicit(250,100,700,70).generateTestData(constants.DEV_PATH,constants.EXPECT_DATA_PATH)
 		
 		file_expect = open(constants.EXPECT_DATA_PATH)
 		
@@ -312,7 +337,7 @@ class Parser:
 			
 			predict = line.strip().split(' ')[-1]#level 2 type
 			if '.' in predict:
-				predict=predict.split('.')[1]
+				predict=predict
 			answers = line2.split(' ')
 
 			for answer in answers:
@@ -321,7 +346,7 @@ class Parser:
 				else:
 					level2 = answer.strip()
 				print predict,'\t',level2,
-				if predict==level2:
+				if predict.split('.')[1]==level2:
 					print "\tcorrect!"
 					correct+=1
 					break
@@ -330,8 +355,19 @@ class Parser:
 		print "F1 measure(Micro Avg.) = ",(correct*100.0/total),'%'
 
 if __name__=='__main__':
+
+	argparser = argparse.ArgumentParser(description="train the model or predict")
+	argparser.add_argument('action',help='train, predict or select features')
+	argparser.add_argument('file',help='train data file or test data file')
+	args = argparser.parse_args()
+
 	parser = Parser()
-	parser.train()
-	parser.predict()
-	#parser.feature_selection()
+
+	if args.action=='train':
+		parser.train(args.file)
+	elif args.action=='predict':
+		parser.predict(args.file)
+		#parser.predict_with_answer()
+	elif args.action=='feature':
+		parser.feature_selection()
 
