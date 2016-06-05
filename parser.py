@@ -4,6 +4,8 @@ import math
 import argparse
 from implicit import Implicit
 import constants
+import preprocess
+import features
 
 def cmpt(x,y):
 	return -cmp(x[1],y[1])
@@ -44,6 +46,8 @@ class Parser:
 			for sense in senses:
 				if '.' in sense:
 					level2_cnts[sense.split('.')[1]]+=1
+				else:
+					level2_cnts[sense]+=1
 
 			for k in set(ptree1).union(set(ptree2)):
 				feature = k
@@ -53,9 +57,9 @@ class Parser:
 				for sense in senses:
 					if '.' in sense:
 						sense = sense.split('.')[1]
-						if not sense in ptree_features[feature]:
-							ptree_features[feature][sense]=0
-						ptree_features[feature][sense]+=1
+					if not sense in ptree_features[feature]:
+						ptree_features[feature][sense]=0
+					ptree_features[feature][sense]+=1
 
 			for k in set(dtree1).union(set(dtree2)):
 				feature = k
@@ -65,9 +69,9 @@ class Parser:
 				for sense in senses:
 					if '.' in sense:
 						sense = sense.split('.')[1]
-						if not sense in dtree_features[feature]:
-							dtree_features[feature][sense]=0
-						dtree_features[feature][sense]+=1
+					if not sense in dtree_features[feature]:
+						dtree_features[feature][sense]=0
+					dtree_features[feature][sense]+=1
 
 			for k in set(wpFeatures):
 				if k not in wp_features:
@@ -76,9 +80,9 @@ class Parser:
 				for sense in senses:
 					if '.' in sense:
 						sense = sense.split('.')[1]
-						if not sense in wp_features[k]:
-							wp_features[k][sense]=0
-						wp_features[k][sense]+=1
+					if not sense in wp_features[k]:
+						wp_features[k][sense]=0
+					wp_features[k][sense]+=1
 
 			#first-last-first3
 			fl_features = []
@@ -100,9 +104,9 @@ class Parser:
 				for sense in senses:
 					if '.' in sense:
 						sense = sense.split('.')[1]
-						if not sense in firstlast_features[k]:
-							firstlast_features[k][sense]=0
-						firstlast_features[k][sense]+=1
+					if not sense in firstlast_features[k]:
+						firstlast_features[k][sense]=0
+					firstlast_features[k][sense]+=1
 
 		#calculate MI
 		total = 0
@@ -284,7 +288,7 @@ class Parser:
 		if os.path.exists(constants.MODEL_PATH):
 			return
 		Implicit(250,100,700,70).generateTrainData(train_file)
-		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 70'
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 40'
 		#print 'Training...'
 		print cmd
 		os.system(cmd)
@@ -302,7 +306,7 @@ class Parser:
 		arr_test = [json.loads(x) for x in file_test]
 
 		for sent in arr_test:
-			if sent[u'Type']=='Explicit':#we can predict Implicit, EntRel and AltLex
+			if not sent[u'Type']=='Implicit':#we can predict Implicit, EntRel and AltLex
 				file_predict.write(json.dumps(sent)+'\n')
 				continue
 			line = result.readline()
@@ -314,7 +318,6 @@ class Parser:
 
 		file_test.close()
 		file_predict.close()
-
 
 	def predict_with_answer(self):
 
@@ -341,12 +344,15 @@ class Parser:
 			answers = line2.split(' ')
 
 			for answer in answers:
-				if '.' in answer:
+				'''if '.' in answer:
 					level2 = answer.strip().split('.')[1]
 				else:
-					level2 = answer.strip()
+					level2 = answer.strip()'''
+				level2 = answer.strip()
+				if 'Pragmaticcause' in predict or 'Pragmatic_cause' in predict:
+					predict = 'Contingency.Pragmatic cause'
 				print predict,'\t',level2,
-				if predict.split('.')[1]==level2:
+				if predict==level2:
 					print "\tcorrect!"
 					correct+=1
 					break

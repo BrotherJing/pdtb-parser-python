@@ -136,7 +136,7 @@ class Implicit:
 		preprocess.generatePtreeDtreeFile(test_file_path,constants.DEV_PTREE_DTREE_PATH)
 		data = open(constants.DEV_PTREE_DTREE_PATH)
 		
-		if os.path.exists(constants.TEST_DATA_PATH):
+		if os.path.exists(constants.TEST_DATA_PATH) and os.path.exists(constants.EXPECT_DATA_PATH):
 			return
 		test_data = open(constants.TEST_DATA_PATH,'w')
 		if generate_expect_file:

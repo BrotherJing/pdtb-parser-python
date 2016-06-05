@@ -1,23 +1,23 @@
 Level_2_types = ['Asynchronous', 'Synchrony',
         'Cause', 'Pragmatic cause', 
         'Contrast', 'Concession', 
-        'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List']
+        'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List', 'EntRel']
 
 Level_1_2_types = ['Temporal.Asynchronous','Temporal.Synchrony',
 	'Contingency.Cause','Contingency.Pragmatic cause',
 	'Comparison.Contrast','Comparison.Concession',
 	'Expansion.Conjunction','Expansion.Instantiation',
-	'Expansion.Restatement','Expansion.Alternative','Expansion.List','Expansion.Exception']
+	'Expansion.Restatement','Expansion.Alternative','Expansion.List','Expansion.Exception', 'EntRel']
 
 Level_1_2_types_full = ['Temporal.Asynchronous', 'Temporal.Synchrony',
         'Contigency.Cause', 'Contingency.Pragmatic cause', "Contigency.Condition" ,"Contigency.Pragmatic condition",
         'Comparison.Contrast', 'Comparison.Concession', "Comparison.Pragmatic contrast", "Comparison.Pragmatic concession",
-        'Expansion.Conjunction', 'Expansion.Instantiation', 'Expansion.Restatement', 'Expansion.Alternative', 'Expansion.List', "Expansion.Exception"]
+        'Expansion.Conjunction', 'Expansion.Instantiation', 'Expansion.Restatement', 'Expansion.Alternative', 'Expansion.List', "Expansion.Exception", 'EntRel']
 
 Level_2_types_full = ['Asynchronous', 'Synchrony',
         'Cause', 'Pragmatic cause', "Condition" ,"Pragmatic condition",
         'Contrast', 'Concession', "Pragmatic contrast", "Pragmatic concession",
-        'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List', "Exception"]
+        'Conjunction', 'Instantiation', 'Restatement', 'Alternative', 'List', "Exception", 'EntRel']
 
 #data file
 DATA_PATH = 'pdtb-data.json'
