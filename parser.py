@@ -288,7 +288,7 @@ class Parser:
 		if os.path.exists(constants.MODEL_PATH):
 			return
 		Implicit(250,100,700,70).generateTrainData(train_file)
-		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 40'
+		cmd = 'cd eval; java -cp '+constants.CLASSPATH+' CreateModel -real ../'+constants.TRAIN_DATA_PATH+' 50'
 		#print 'Training...'
 		print cmd
 		os.system(cmd)
@@ -306,7 +306,8 @@ class Parser:
 		arr_test = [json.loads(x) for x in file_test]
 
 		for sent in arr_test:
-			if not sent[u'Type']=='Implicit':#we can predict Implicit, EntRel and AltLex
+			if sent[u'Type']=='Explicit':
+			#if not sent[u'Type']=='Implicit':#we can predict Implicit, EntRel and AltLex
 				file_predict.write(json.dumps(sent)+'\n')
 				continue
 			line = result.readline()
@@ -336,6 +337,8 @@ class Parser:
 			line = result.readline()
 			line2 = file_expect.readline()
 			if not line or not line2: break
+			if line2=='EntRel':
+				continue
 			total+=1
 			
 			predict = line.strip().split(' ')[-1]#level 2 type
