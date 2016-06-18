@@ -6,7 +6,8 @@
 *.test
 *.expect
 
-parserhelper/*.jar
-tmp/*
+tmp/*.test
+tmp/*.json
 
-pdtb_ptree_dtree.json
+*.json
+

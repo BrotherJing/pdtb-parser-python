@@ -2,16 +2,12 @@
 *.py~
 
 *.train
-*.model
 *.test
 *.expect
 
-parserhelper/*.jar
-tmp/*
+tmp/*.test
+tmp/*.json
+tmp/*.json
 
 *.json
 
-data/mi_ptree
-data/mi_dtree
-data/mi_wp
-data/mi_fl
