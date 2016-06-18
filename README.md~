@@ -1,6 +1,6 @@
 ## Usage
 
-```bash
+```
 #train
 python parser.py train <train_file_name>
 
@@ -10,7 +10,6 @@ python parser.py predict <test_file_name>
 #select features using MI
 python parser.py feature
 ```
-The output predict_pdtb.json is the predict result.
 
 ### 2016.05.29
 
