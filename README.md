@@ -1,5 +1,10 @@
 ## Usage
 
+### Environment
+
+- Python 2.7
+- Java
+
 ```bash
 #train
 python parser.py train <train_file_name>
@@ -11,6 +16,8 @@ python parser.py predict <test_file_name>
 python parser.py feature
 ```
 The output predict_pdtb.json is the predict result.
+
+If you want to train from new data, delete all things under `/tmp`. If you just want to predict on new data, just delete all files whose name doesn't contains `train` under `/tmp`.
 
 ### 2016.05.29
 

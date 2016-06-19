@@ -74,6 +74,8 @@ class Implicit:
 			sid = sent[u'ID']
 			print "generate train data for sentence#",sid+'\r',
 			senses = sent[u'Sense']
+			if not sent[u'Type']=='Implicit':
+				continue
 			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
 			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
 			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
@@ -147,6 +149,8 @@ class Implicit:
 			sid = sent[u'ID']
 			print "generate test data for sentence#",sid,'\r',
 			senses = sent[u'Sense']
+			if not sent[u'Type']=='Implicit':
+				continue
 			ptree1 = features.getProductionRuleFeaturesFromStr(sent[u'Arg1'][u'ParseTree'])
 			dtree1 = features.getDependencyFeaturesFromStr(sent[u'Arg1'][u'Dependency'])
 			ptree2 = features.getProductionRuleFeaturesFromStr(sent[u'Arg2'][u'ParseTree'])
